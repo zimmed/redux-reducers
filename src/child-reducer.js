@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const {INIT} = require('./const');
+const INIT = require('./const').INIT; // UglifyJS dumbness
 
 const reducerMap = (state, action) => (value=_.noop, key) => value(_.get(state, key), action);
 const buildChild = (state, key, value) => {
