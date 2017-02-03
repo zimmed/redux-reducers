@@ -1,2 +1,5 @@
 .idea
 node_modules
+.c9
+.nvm
+build
