@@ -2,10 +2,10 @@ const _ = require('lodash');
 const path = require('path');
 const fs = require('fs');
 const webpack = require('webpack');
-const babel = (JSON).parse(fs.readFileSync('./.babelrc'));
+const babel = JSON.parse(fs.readFileSync('./.babelrc'));
 const pkg = require('./package.json');
 
-let thing = {
+module.exports = {
     entry: {
         app: './src/index.js',
         vendor: _.keys(pkg.dependencies)
@@ -36,7 +36,3 @@ let thing = {
         extensions: ['.js', '.json']
     }
 };
-
-console.log('thing', thing)
-
-module.exports = thing;

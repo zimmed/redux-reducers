@@ -1,32 +1,34 @@
-const _ = require('lodash');
-const {INIT, SEP} = require('./const');
-const childReducer = require('./child-reducer');
+import _ from './util';
+import {INIT, SEP} from './const';
+import childReducer from './child-reducer';
 
 const split = (action, separator) => {
-    let pieces = _.split(action.type, separator);
+    const pieces = action.type.split(separator);
 
     return {
         head: _.head(pieces),
-        rest: _.assign({}, action, {type: _.join(_.slice(pieces, 1), separator)})
+        rest: Object.assign({}, action, {type: pieces.slice(1).join(separator)})
     };
 };
 
 const Reducer = {
 
     create: (model={}, actions={}, reducers={}, {init=INIT, sep=SEP}={}) => {
-        const ini = (state, action) => _.assign({}, model, Reducer.branch(state, null, action, reducers, {init}));
+        const ini = (state, action) => Object.assign({}, model,
+            Reducer.branch(state, null, action, reducers, {init}));
         const act = (state, action) => {
-            let {head, rest} = split(action, sep);
+            const {head, rest} = split(action, sep);
 
-            if (_.has(actions, head)) {
+            if (actions.hasOwnProperty(head)) {
                 state = actions[head](state, rest);
             }
-            if (_.has(reducers, head)) {
+            if (reducers.hasOwnProperty(head)) {
                 state = Reducer.branch(state, head, rest, reducers, {init});
             }
             return state;
         };
-        const reducer = (state, action) => (!state || action.type === init) && ini(state, action) || act(state, action);
+        const reducer = (state, action) => (!state || action.type === init) &&
+            ini(state, action) || act(state, action);
 
         reducer.actions = actions;
         reducer.children = reducers;
@@ -36,4 +38,4 @@ const Reducer = {
     branch: childReducer
 };
 
-module.exports = Reducer;
+export default Reducer;

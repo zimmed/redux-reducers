@@ -1,1 +1,3 @@
-module.exports = require('./reducer');
+import Reducer from './reducer';
+
+export default Reducer;

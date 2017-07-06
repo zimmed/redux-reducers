@@ -1,18 +1,23 @@
-const _ = require('lodash');
-const {expect} = require('chai');
-const sinon = require('sinon');
-const INIT = require('./const');
+import {expect} from 'chai';
+import sinon from 'sinon';
+import INIT from './const';
+import childReducer from './child-reducer';
+
+
 const InitAction = {type: INIT};
 const DummyAction = {type: 'action', data: 'whatever'};
-const childReducer = require('./child-reducer');
+const clone = obj => Object.assign({}, obj);
+const cloneDeep = obj => JSON.parse(JSON.stringify(obj));
 
 describe('childReducer', () => {
-    let models = {a: {data: 'a'}, b: {data: 'b'}},
-        reducers = {
-            a: (state, action) => _.assign({}, state, action.type === INIT ? _.clone(models.a) : {action}),
-            b: (state, action) => _.assign({}, state, action.type === INIT ? _.clone(models.b) : {action})
-        },
-        spies = {};
+    const models = {a: {data: 'a'}, b: {data: 'b'}};
+    const reducers = {
+        a: (state, action) => Object.assign({}, state,
+            action.type === INIT? clone(models.a) : {action}),
+        b: (state, action) => Object.assign({}, state,
+            action.type === INIT ? clone(models.b) : {action})
+    };
+    const spies = {};
 
     beforeEach(() => {
         spies.a = sinon.spy(reducers, 'a');
@@ -40,9 +45,9 @@ describe('childReducer', () => {
     });
 
     it('should return a new state given an old state, a map of properties to reducers, and an action for a property', () => {
-        let state, oldState = _.cloneDeep(models);
+        let state, oldState = cloneDeep(models);
 
-        oldState.a.action = _.clone(DummyAction);
+        oldState.a.action = clone(DummyAction);
         expect(() => state = childReducer(oldState, 'a' , DummyAction, reducers)).to.not.throw(Error);
         expect(state).to.exist;
         expect(spies.a.calledOnce).to.equal(true);

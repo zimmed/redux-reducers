@@ -1,8 +1,9 @@
-const _ = require('lodash');
-const {expect} = require('chai');
-const sinon = require('sinon');
-const Reducer = require('./reducer');
-const {INIT} = require('./const');
+import _ from './util';
+import {expect} from 'chai';
+import sinon from 'sinon';
+import Reducer from './reducer';
+import {INIT} from './const';
+
 
 const InitAction = {type: INIT};
 
@@ -31,7 +32,7 @@ describe('Reducer Factory', () => {
             let reducer;
 
             expect(() => reducer = Reducer.create({}, {
-                myAction: (state, action) => _.assign(state, action.data)
+                myAction: (state, action) => Object.assign(state, action.data)
             })).to.not.throw(Error);
             expect(reducer).to.be.a('function');
         });
@@ -40,7 +41,7 @@ describe('Reducer Factory', () => {
             let reducer;
 
             expect(() => reducer = Reducer.create({}, {}, {
-                child: (state, action) => _.assign(state, action.data, {t: action.type})
+                child: (state, action) => Object.assign(state, action.data, {t: action.type})
             })).to.not.throw(Error);
             expect(reducer).to.be.a('function');
         });
@@ -49,9 +50,9 @@ describe('Reducer Factory', () => {
             let reducer;
 
             expect(() => reducer = Reducer.create({},  {
-                myAction: (state, action) => _.assign(state, action.data)
+                myAction: (state, action) => Object.assign(state, action.data)
             }, {
-                child: (state, action) => _.assign(state, action.data, {t: action.type})
+                child: (state, action) => Object.assign(state, action.data, {t: action.type})
             })).to.not.throw(Error);
             expect(reducer).to.be.a('function');
         });
@@ -60,35 +61,32 @@ describe('Reducer Factory', () => {
     describe('branch method', () => {
 
         it('should be the reduce-child method', () => {
-            expect(Reducer.branch).to.equal(require('./child-reducer'));
+            expect(Reducer.branch).to.equal(require('./child-reducer').default);
         });
     });
 });
 
 describe('Reducer instance', () => {
-    let model,
-        events,
-        children,
-        reducer,
-        stub;
+    const noop = {type: 'noop'};
+    let model, events, children, reducer, stub;
 
     beforeEach(() => {
         model = {data: null, childEvent: false};
         events = {
-            setDataField: (state, action) => _.assign({}, state, {data: action.data}),
-            child: (state, action) => _.assign({}, state, {childEvent: true, child: null})
+            setDataField: (state, action) => Object.assign({}, state, {data: action.data}),
+            child: (state, action) => Object.assign({}, state, {childEvent: true, child: null})
         };
         children = {child: Reducer.create({a: 'a'})};
         reducer = Reducer.create(model, events, children);
         stub = sinon.stub(Reducer, 'branch', (s, k, a, r) => {
             let o = {};
 
-            if (_.has(r, k)) {
+            if (r.hasOwnProperty(k)) {
                 o[k] = r[k](s[k], a);
             } else if (!k || a.type === INIT) {
                 o = _.mapValues(r, (val, key) => val(_.get(s, k), a));
             }
-            return _.assign({}, s, o);
+            return Object.assign({}, s, o);
         });
     });
 
@@ -101,15 +99,15 @@ describe('Reducer instance', () => {
 
         expect(reducer).to.exist;
         expect(reducer).to.be.a('function');
-        expect(() => state = reducer(state, 'noop')).to.not.throw(Error);
+        expect(() => state = reducer(state, noop)).to.not.throw(Error);
         expect(state).to.exist;
         expect(state).to.be.an('object');
         expect(stub.callCount).to.equal(0);
     });
 
     it('should return the same state if no action to handle', () => {
-        let oldState = {a: {b: 'thing'}},
-            state = reducer(oldState, 'noop');
+        const oldState = {a: {b: 'thing'}};
+        const state = reducer(oldState, noop);
 
         expect(stub.callCount).to.equal(0);
         expect(state).to.eql(oldState);
@@ -121,18 +119,19 @@ describe('Reducer instance', () => {
 
         expect(() => state = reducer(state, InitAction)).to.not.throw(Error);
         expect(stub.callCount).to.equal(2);
-        expect(state).to.eql(_.assign({}, model, {child: {a: 'a'}}));
+        expect(state).to.eql(Object.assign({}, model, {child: {a: 'a'}}));
         expect(state).to.not.equal(model);
     });
 
     it('should allow action handlers to update the state functionally', () => {
-        let nstate, state = reducer({}, InitAction);
+        const state = reducer({}, InitAction);
+        let nstate;
 
         stub.reset();
         expect(() => nstate = reducer(state, {type: 'setDataField', data: 1})).to.not.throw(Error);
         expect(stub.callCount).to.equal(0);
-        expect(state).to.eql(_.assign({}, model, {child: {a: 'a'}}));
-        expect(nstate).to.eql(_.assign({}, model, {data: 1, child: {a: 'a'}}));
+        expect(state).to.eql(Object.assign({}, model, {child: {a: 'a'}}));
+        expect(nstate).to.eql(Object.assign({}, model, {data: 1, child: {a: 'a'}}));
     });
 
     it('should prioritize actions over child reducers so that actions are called first', () => {

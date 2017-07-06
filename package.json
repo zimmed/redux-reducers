@@ -1,10 +1,10 @@
 {
   "name": "redux-reducers",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Redux reducer factory",
   "main": "src/index.js",
   "scripts": {
-    "test": "node ./node_modules/.bin/mocha 'src/**/*.spec.js'",
+    "test": "node ./node_modules/.bin/mocha 'src/**/*.spec.js' --require babel-core/register",
     "build": "node ./node_modules/.bin/webpack -p",
     "clean": "rm -rf ./build"
   },
