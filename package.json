@@ -1,6 +1,6 @@
 {
   "name": "redux-reducers",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "Redux reducer factory",
   "main": "src/index.js",
   "scripts": {
