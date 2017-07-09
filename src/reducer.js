@@ -2,6 +2,7 @@ import _ from './util';
 import {INIT, SEP} from './const';
 import childReducer from './child-reducer';
 
+
 const split = (action, separator) => {
     const pieces = action.type.split(separator);
 
