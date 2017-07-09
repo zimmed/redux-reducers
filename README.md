@@ -49,7 +49,7 @@ const actions = {
 export default Reducer.create(model, actions, {});
 ```
 
-In this simple example, the `reducer.js` file exports a root reducer that handles one action type: `changeName`. And the initial state tree would be: `{name: 'Unnamed'}`. This way you can have a map of reducers to handle all of your actiont types.
+In this simple example, the `reducer.js` file exports a root reducer that handles one action type `changeName`, and the initial state tree would be: `{name: 'Unnamed'}`. This way you can have a map of reducers to handle all of your action types.
 
 In the advanced usage, you will see the real benefit of this structure when we start to add complex actions and branched reducers.
 
